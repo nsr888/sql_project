@@ -1,3 +1,4 @@
+drop table if exists DWH_DIM_CLIENTS;
 create table if not exists DWH_DIM_CLIENTS(
     client_id varchar(128) primary key,
     last_name varchar(128),
@@ -11,6 +12,7 @@ create table if not exists DWH_DIM_CLIENTS(
     update_dt date
 );
 
+drop table if exists DWH_DIM_ACCOUNTS;
 create table if not exists DWH_DIM_ACCOUNTS(
     account_num varchar(128) primary key,
     valid_to date,
@@ -20,6 +22,7 @@ create table if not exists DWH_DIM_ACCOUNTS(
     foreign key (client) references DWH_DIM_CLIENTS (client_id)
 );
 
+drop table if exists DWH_DIM_CARDS;
 create table if not exists DWH_DIM_CARDS(
     card_num varchar(128) primary key,
     account_num varchar(128),
@@ -28,17 +31,7 @@ create table if not exists DWH_DIM_CARDS(
     foreign key (account_num) references DWH_DIM_ACCOUNTS (account_num)
 );
 
-create table if not exists DWH_DIM_TERMINALS_HIST(
-    id integer primary key autoincrement,
-    terminal_id varchar(128),
-    terminal_type varchar(128),
-    terminal_city varchar(128),
-    terminal_address varchar(128),
-    effective_from date default current_timestamp,
-    effective_to date default (datetime('2999-12-31 23:59:59')),
-    deleted_flg default 0
-);
-
+drop table if exists DWH_FACT_TRANSACTIONS;
 create table if not exists DWH_FACT_TRANSACTIONS(
     trans_id varchar(128),
     trans_date date,
@@ -51,6 +44,7 @@ create table if not exists DWH_FACT_TRANSACTIONS(
     foreign key (terminal) references DWH_DIM_TERMINALS_HIST (terminal_id)
 );
 
+drop table if exists DWH_FACT_PASSPORT_BLACKLIST;
 create table if not exists DWH_FACT_PASSPORT_BLACKLIST(
     passport_num varchar(128),
     entry_dt date

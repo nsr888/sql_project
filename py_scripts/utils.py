@@ -27,6 +27,7 @@ def showData(con, objName):
     cursor.execute(f'select * from {objName}')
     title = [i[0] for i in cursor.description]
     print(title)
+    # for row in cursor.fetchall():
     for row in cursor.fetchall()[0:10]:
         print(row)
     countData(con, objName)
