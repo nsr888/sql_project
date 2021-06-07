@@ -49,3 +49,12 @@ create table if not exists DWH_FACT_PASSPORT_BLACKLIST(
     passport_num varchar(128),
     entry_dt date
 );
+
+create table if not exists REP_FRAUD(
+    event_dt date,
+    passport varchar(128),
+    fio varchar(364),
+    phone varchar(128),
+    event_type varchar(128),
+    report_dt date default current_timestamp
+);

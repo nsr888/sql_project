@@ -1,3 +1,4 @@
+import os
 from py_scripts import utils
 
 
@@ -69,9 +70,10 @@ def updateAutoHist(con):
     # deleted records
     cursor.execute('''
         update DWH_DIM_TERMINALS_HIST
-            set effective_to == datetime('now', '-1 second')
+            set effective_to = datetime('now', '-1 second'),
+            deleted_flg = 1
             where terminal_id in (select terminal_id from STG_TERMINALS_DELETE)
-            and effective_to = datetime('2999-12-31 23:59');
+            and effective_to = datetime('2999-12-31 23:59:59');
     ''')
     # new records
     cursor.execute('''
@@ -90,9 +92,9 @@ def updateAutoHist(con):
     # modified records
     cursor.execute('''
         update DWH_DIM_TERMINALS_HIST
-            set effective_to == datetime('now', '-1 second')
+            set effective_to = datetime('now', '-1 second')
             where terminal_id in (select terminal_id from STG_TERMINALS_CHANGED)
-            and effective_to = datetime('2999-12-31 23:59');
+            and effective_to = datetime('2999-12-31 23:59:59');
     ''')
     cursor.execute('''
         insert into DWH_DIM_TERMINALS_HIST(
@@ -110,23 +112,30 @@ def updateAutoHist(con):
     con.commit()
 
 
-def deleteTmpTables(cursor):
+def deleteTmpTables(con):
+    cursor = con.cursor()
     cursor.execute('drop table if exists STG_TERMINALS')
     cursor.execute('drop table if exists STG_TERMINALS_NEW')
     cursor.execute('drop table if exists STG_TERMINALS_DELETE')
     cursor.execute('drop table if exists STG_TERMINALS_CHANGED')
     cursor.execute('drop view if exists STG_TERMINALS_VIEW')
+    con.commit()
 
-def incremental_load(con):
+
+def loadIncremental(con, date):
+    source_file = "terminals_" + date + ".xlsx"
+    utils.loadExcel(con, source_file, 'STG_TERMINALS')
     cursor = con.cursor()
     init(cursor)
     createTableNewRows(cursor)
     createTableDeleteRows(cursor)
     createTableChangedRows(cursor)
     updateAutoHist(con)
-    utils.showData(con, 'STG_TERMINALS')
-    utils.showData(con, 'STG_TERMINALS_NEW')
-    utils.showData(con, 'STG_TERMINALS_DELETE')
-    utils.showData(con, 'STG_TERMINALS_CHANGED')
-    utils.showData(con, 'DWH_DIM_TERMINALS_HIST')
-    deleteTmpTables(cursor)
+    # utils.showData(con, 'STG_TERMINALS')
+    # utils.showData(con, 'STG_TERMINALS_NEW')
+    # utils.showData(con, 'STG_TERMINALS_DELETE')
+    # utils.showData(con, 'STG_TERMINALS_CHANGED')
+    # utils.showData(con, 'DWH_DIM_TERMINALS_HIST')
+    deleteTmpTables(con)
+    backup_file = os.path.join("archive", "terminals_" + date + ".xlsx.backup")
+    os.rename(source_file, backup_file)
