@@ -1,5 +1,5 @@
 import os
-from py_scripts import utils
+from py_scripts import utils, load2db
 
 
 def init(cursor):
@@ -122,9 +122,9 @@ def deleteTmpTables(con):
     con.commit()
 
 
-def loadIncremental(con, date):
+def incremental_load(con, date):
     source_file = "terminals_" + date + ".xlsx"
-    utils.loadExcel(con, source_file, 'STG_TERMINALS')
+    load2db.excel_load(con, source_file, 'STG_TERMINALS')
     cursor = con.cursor()
     init(cursor)
     createTableNewRows(cursor)
