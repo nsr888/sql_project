@@ -6,7 +6,7 @@ from py_scripts import utils, load2db, load2db_terminals, fraud
 if __name__ == "__main__":
     con = sqlite3.connect('sber.db')
     load2db.sql_load(con, './sql_scripts/init.sql')  # create all tables
-    load2db.bank(con)
+    load2db.bank(con) # load data from BANK
     date = ''
     try:
         date = utils.getFileDate()  # extract current date from given files names
